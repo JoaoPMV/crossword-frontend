@@ -1,0 +1,147 @@
+@media (max-width: 780px) {
+  :root {
+    --size: 2rem;
+    --cols: 11;
+    --gap: 0.5rem;
+  }
+
+  #grid-crossword {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 10vh 1fr 10vh;
+    height: 100vh;
+  }
+
+  .header-crossword {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+  }
+
+  .section-crossword {
+    justify-content: start;
+    height: 30vh;
+    width: 100%;
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+
+  .footer-crossword {
+    grid-column: 1 / 2;
+    grid-row: 4 / 5;
+    background-color: blue;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .crossword-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--cols), var(--size));
+    grid-auto-rows: var(--size);
+    width: max-content;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+    padding: 0;
+    padding-bottom: 3vh;
+  }
+
+  .cell {
+    font-size: 0.9rem;
+  }
+
+  .cell input {
+    font-size: 0.85rem;
+  }
+
+  .main-crossword {
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .audio-crossword {
+    width: 55vw;
+  }
+
+  .level-grid {
+    display: flex;
+    justify-content: end;
+    align-items: center;
+  }
+
+  .buttons-crossword {
+    gap: 2vw;
+
+    display: flex;
+    align-items: center;
+
+
+
+  }
+
+
+
+  .level-crossword {
+    margin: 0;
+  }
+
+  .next-crossword {
+    margin: 0;
+
+  }
+
+  #grid-crossword {
+    background-image: url('/images/red.jpg');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+  }
+
+  .main-master {
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .footer-crossword {
+    grid-column: 1 / 2;
+    grid-row: 3 / 4;
+
+  }
+
+  .main-crossword {
+    height: auto;
+    padding: 0;
+  }
+
+  .how-to-play-box {
+    height: 55%;
+    width: 95%;
+    transform: translate(-50%, -20%);
+
+  }
+
+  .how-to-play-box {
+    position: fixed;
+    top: 69%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    border: 1px solid gray;
+    padding: 1rem;
+    padding-left: 3vw;
+    border-top-right-radius: 3rem;
+    border-bottom-left-radius: 2rem;
+    border-top-left-radius: 1rem;
+    border-bottom-right-radius: 1rem;
+    background: rgb(212, 212, 215);
+    gap: 1rem;
+    padding-bottom: 0;
+  }
+
+}
