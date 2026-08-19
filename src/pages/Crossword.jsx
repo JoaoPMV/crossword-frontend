@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import VirtualKeyboard from "../components/VirtualKeyboard";
 import CrosswordGrid from "../components/CrosswordGrid";
 import { useCrosswordKeyboard } from "../hooks/useCrosswordKeyboard";
@@ -7,18 +8,11 @@ import {
   placeWordsIntoGrid,
 } from "../hooks/useCrosswordGrid";
 
-import { useNavigate } from "react-router-dom";
 import { fetchGames } from "../api";
 import { saveProgress } from "../api";
-import { useAuth } from "../context/authContext";
+
 import { getProgress } from "../api";
-import { FaUserCircle } from "react-icons/fa";
 import AudioPlayer from "../components/AudioPlayer";
-import { TbHexagonNumber1Filled } from "react-icons/tb";
-import { TbHexagonNumber2Filled } from "react-icons/tb";
-import { TbHexagonNumber3Filled } from "react-icons/tb";
-import { TbHexagonNumber4Filled } from "react-icons/tb";
-import { TbHexagonNumber5Filled } from "react-icons/tb";
 
 import "./crossword.css";
 
@@ -31,7 +25,7 @@ const decodeTokenManualmente = (token) => {
       atob(base64)
         .split("")
         .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-        .join("")
+        .join(""),
     );
 
     // Retorna o conteúdo do payload como objeto JSON decodificado
@@ -43,8 +37,8 @@ const decodeTokenManualmente = (token) => {
 };
 
 export default function Teste({ rows = 11, cols = 11 }) {
-  const { user } = useAuth();
-  // Estados
+  const navigate = useNavigate();
+  const { level } = useParams();
 
   const [levels, setLevels] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -52,10 +46,9 @@ export default function Teste({ rows = 11, cols = 11 }) {
   const [currentLevelIdx, setCurrentLevelIdx] = useState(0);
   const [inputDirection, setInputDirection] = useState("across"); // ou "down"
   const [showHowToPlay, setShowHowToPlay] = useState(false);
-  const [open, setOpen] = useState(false);
+
   const [activeCellIdx, setActiveCellIdx] = useState(null);
   const inputRefs = useRef([]);
-  const audioRef = useRef(null);
 
   const { gridCells, setGridCells, isAllCorrect } = useCrosswordGrid({
     levels,
@@ -92,7 +85,7 @@ export default function Teste({ rows = 11, cols = 11 }) {
       const userId = getUserId();
       if (!userId) {
         alert(
-          "Não foi possível salvar o progresso. O usuário não está autenticado."
+          "Não foi possível salvar o progresso. O usuário não está autenticado.",
         );
         return;
       }
@@ -106,7 +99,8 @@ export default function Teste({ rows = 11, cols = 11 }) {
     } catch (error) {
       console.error("Erro ao salvar progresso:", error.message);
       alert(
-        error.message || "Erro ao salvar progresso. Por favor, tente novamente."
+        error.message ||
+          "Erro ao salvar progresso. Por favor, tente novamente.",
       );
     }
   };
@@ -122,8 +116,6 @@ export default function Teste({ rows = 11, cols = 11 }) {
       cols,
     });
 
-  const navigate = useNavigate();
-
   useEffect(() => {
     const loadLevels = async () => {
       const token = localStorage.getItem("authToken");
@@ -132,7 +124,7 @@ export default function Teste({ rows = 11, cols = 11 }) {
         return;
       }
       try {
-        const data = await fetchGames();
+        const data = await fetchGames(level);
         setLevels(data); // Armazena os níveis no estado
         if (data.length > 0) {
           const { grid } = placeWordsIntoGrid(rows, cols, data[0].words);
@@ -146,7 +138,7 @@ export default function Teste({ rows = 11, cols = 11 }) {
     };
 
     loadLevels();
-  }, [rows, cols, navigate]);
+  }, [rows, cols, navigate, level]);
 
   useEffect(() => {
     const loadProgress = async () => {
@@ -159,10 +151,9 @@ export default function Teste({ rows = 11, cols = 11 }) {
       }
 
       const progress = await getProgress(userId, token);
+
       const idx = levels.findIndex(
-        (level) =>
-          level.level.trim().toLowerCase() ===
-          progress.currentLevel.trim().toLowerCase()
+        (level) => level.level === progress.currentLevel,
       );
 
       if (progress?.currentLevel && levels.length > 0) {
@@ -177,26 +168,6 @@ export default function Teste({ rows = 11, cols = 11 }) {
     if (levels.length > 0) loadProgress();
   }, [levels]);
 
-  useEffect(() => {
-    if (!levels.length) return;
-
-    const level = levels[currentLevelIdx];
-    if (!level?.slug) return;
-
-    if (audioRef.current) {
-      console.log("Atualizando áudio para:", level.slug);
-      audioRef.current.src = `/audios/${level.slug}.mp3`;
-      audioRef.current.load();
-
-      audioRef.current
-        .play()
-        .then(() => console.log("Áudio reproduzido automaticamente"))
-        .catch((error) =>
-          console.error("Erro ao tentar reproduzir o áudio:", error)
-        );
-    }
-  }, [currentLevelIdx, levels]);
-
   if (loading) {
     return <p>Carregando...</p>;
   }
@@ -209,24 +180,15 @@ export default function Teste({ rows = 11, cols = 11 }) {
     <>
       <div id="grid-crossword">
         <div className="blur-background"></div>
-        <header className="header-crossword" onClick={() => setOpen(!open)}>
-          <div className="user-wrapper">
-            <p>
-              <FaUserCircle className="user-icon" />
+        <div>
+          {showHowToPlay && (
+            <p className="rules">
+              Click the "Play Audio" button. You will hear a short dialogue
+              containing all the words you need to complete the crossword
+              puzzle.
             </p>
-            <p>{user ? user.name : "usuário"}</p>
-
-            <div className={`user-panel ${open ? "open" : ""}`}>
-              <a className="" href="/logout">
-                Sair
-              </a>
-            </div>
-          </div>
-        </header>
-
-        <p className="level-crossword level-class">
-          {levels[currentLevelIdx]?.level || "Nível desconhecido"}
-        </p>
+          )}
+        </div>
 
         <main className="main-crossword">
           <div className="box-crossword-grid">
@@ -243,43 +205,14 @@ export default function Teste({ rows = 11, cols = 11 }) {
               moveFocus={moveFocus}
             />
           </div>
-
-          <div>
-            {showHowToPlay && (
-              <div className="how-to-play-box">
-                <p>
-                  <TbHexagonNumber1Filled className="numbers-icons" />
-                  Listen to the audio about daily routines.
-                </p>
-                <p>
-                  <TbHexagonNumber2Filled className="numbers-icons" />
-                  Audios provide the words to solve the puzzle.
-                </p>
-                <p>
-                  <TbHexagonNumber3Filled className="numbers-icons" />
-                  Each level has a different audio.
-                </p>
-                <p>
-                  <TbHexagonNumber4Filled className="numbers-icons" />
-                  Letters must be typed from top to bottom.
-                </p>
-                <p>
-                  <TbHexagonNumber5Filled className="numbers-icons" />
-                  Letters must be typed from left to right.
-                </p>
-              </div>
-            )}
-          </div>
         </main>
 
-        <section className="buttons-crossword">
-          <AudioPlayer
-            src={
-              levels[currentLevelIdx]?.slug
-                ? `/audios/${levels[currentLevelIdx].slug}.mp3`
-                : ""
-            }
-          />
+        <p className="level-crossword">
+          {levels[currentLevelIdx]?.title || "Nível desconhecido"}
+        </p>
+
+        <div className="buttons-crossword">
+          <AudioPlayer src={levels[currentLevelIdx]?.audio || ""} />
 
           <button
             className={`${isAllCorrect ? "correct" : ""}`}
@@ -293,9 +226,9 @@ export default function Teste({ rows = 11, cols = 11 }) {
             <p>Next</p>
           </button>
           <button onClick={() => setShowHowToPlay(!showHowToPlay)}>
-            <p>How to play</p>
+            <p>Rules</p>
           </button>
-        </section>
+        </div>
 
         <VirtualKeyboard onKeyPress={handleVirtualKeyPress} />
       </div>

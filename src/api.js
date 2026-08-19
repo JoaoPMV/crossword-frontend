@@ -46,14 +46,14 @@ export const loginUser = async (formData) => {
 };
 
 // Função para buscar jogos
-export const fetchGames = async () => {
+export const fetchGames = async (level) => {
   try {
-    const token = localStorage.getItem("authToken"); // pega o token do login
+    const token = localStorage.getItem("authToken");
 
-    const response = await fetch(`${API_URL}/api/games`, {
+    const response = await fetch(`${API_URL}/api/games/level/${level}`, {
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // envia o token
+        Authorization: `Bearer ${token}`,
       },
     });
 
@@ -61,8 +61,7 @@ export const fetchGames = async () => {
       throw new Error(`Erro ao buscar jogos (Status: ${response.status})`);
     }
 
-    const data = await response.json();
-    return data;
+    return await response.json();
   } catch (error) {
     console.error("Erro na API:", error.message);
     throw error;
@@ -132,5 +131,29 @@ export const fetchUserByToken = async (token) => {
     return await response.json(); // Deve retornar { user: ... }
   } catch (error) {
     throw new Error(error.message);
+  }
+};
+
+// Função para buscar todos os níveis
+export const fetchLevels = async () => {
+  try {
+    const token = localStorage.getItem("authToken");
+
+    const response = await fetch(`${API_URL}/api/games/levels`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Erro ao buscar níveis (Status: ${response.status})`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Erro ao buscar níveis:", error.message);
+    throw error;
   }
 };

@@ -31,7 +31,7 @@ const Login = () => {
         setUser(response.user);
 
         setTimeout(() => {
-          navigate("/crossword");
+          navigate("/list");
         }, 0);
       } else {
         setMessage("Nenhum token ou usuário recebido na resposta.");
