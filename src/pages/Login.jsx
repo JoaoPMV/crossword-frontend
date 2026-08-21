@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../api";
-import { useAuth } from "../context/authContext"; // Importa o hook
+
 import { FaGithub } from "react-icons/fa";
 import "./pages.css";
 
@@ -12,7 +12,6 @@ const Login = () => {
   });
   const [message, setMessage] = useState("");
 
-  const { setUser } = useAuth(); // Pega a função do contexto
   const navigate = useNavigate();
 
   const loginData = (e) => {
@@ -28,7 +27,6 @@ const Login = () => {
 
       if (response.token && response.user) {
         localStorage.setItem("authToken", response.token);
-        setUser(response.user);
 
         setTimeout(() => {
           navigate("/list");
