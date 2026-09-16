@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../api";
 
-import { FaGithub } from "react-icons/fa";
-import "./pages.css";
+import "./Data.css";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -41,51 +40,35 @@ const Login = () => {
 
   return (
     <div>
-      <div className="container-login-register">
-        <header className="header-login-register">
-          <a href="/register">Sign Up</a>
-        </header>
-        <main className="main-login">
-          <form onSubmit={loginSubmit} className="form-login">
-            <p className="error-login">{message}</p>
+      <div className="dataContainer">
+        <form onSubmit={loginSubmit} className="dataForm">
+          <p className="error-login">{message}</p>
+          <input
+            type="email"
+            placeholder="Email"
+            id="email"
+            name="email"
+            value={formData.email}
+            onChange={loginData}
+            required
+          />
 
-            <input
-              className=""
-              type="email"
-              placeholder="Email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={loginData}
-              required
-            />
+          <input
+            type="password"
+            placeholder="Password"
+            id="password"
+            name="password"
+            value={formData.password}
+            onChange={loginData}
+            required
+          />
 
-            <input
-              type="password"
-              placeholder="Password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={loginData}
-              required
-            />
-
-            <button type="submit" className="button-login-register">
-              Sign In
-            </button>
-          </form>
-        </main>
-        <footer className="footer-login-register">
-          <a
-            href="https://github.com/JoaoPMV"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="dev-info"
-          >
-            <FaGithub className="git-icon" />
-            <span>JoãoP Dev</span>
-          </a>
-        </footer>
+          <button type="submit">Login</button>
+        </form>
+        <div className="dataNavigation">
+          <a href="/register">Register</a>
+          <a href="/forgot-password">Forgot Password</a>
+        </div>
       </div>
     </div>
   );

@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; // Importa o hook useNavigate
 import { registerUser } from "../api"; // Função da API
 import { FaGithub } from "react-icons/fa";
-import "./pages.css";
+import "./Data.css";
 
 const Register = () => {
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
   });
@@ -35,64 +36,58 @@ const Register = () => {
   };
 
   return (
-    <div className="container-login-register">
-      <header className="header-login-register">
-        <a href="/">Sign In</a>
-      </header>
-      <main className="main-login">
-        <form onSubmit={handleSubmit} className="form-register">
-          <div className="error-message">
-            {message && <span>{message}</span>}
-          </div>
+    <div className="dataContainer">
+      <form onSubmit={handleSubmit} className="dataForm">
+        <div className="error-message">{message && <span>{message}</span>}</div>
 
-          <input
-            className=""
-            type="text"
-            placeholder="Name"
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
+        <input
+          type="text"
+          placeholder="First Name"
+          id="firstName"
+          name="firstName"
+          value={formData.firstName}
+          onChange={handleChange}
+          required
+        />
 
-          <input
-            className=""
-            type="email"
-            placeholder="Email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
+        <input
+          type="text"
+          placeholder="Last Name"
+          id="lastName"
+          name="lastName"
+          value={formData.lastName}
+          onChange={handleChange}
+          required
+        />
 
-          <input
-            type="password"
-            id="password"
-            placeholder="Password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
+        <input
+          type="email"
+          placeholder="Email"
+          id="email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          required
+        />
 
-          <button type="submit" className="button-login-register">
-            Sign Up
-          </button>
-        </form>
-      </main>
-      <footer className="footer-login-register">
-        <a
-          href="https://github.com/JoaoPMV"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="dev-info"
-        >
-          <FaGithub className="git-icon" />
-          <span>JoãoP Dev</span>
-        </a>
-      </footer>
+        <input
+          type="password"
+          id="password"
+          placeholder="Password"
+          name="password"
+          value={formData.password}
+          onChange={handleChange}
+          required
+        />
+
+        <button type="submit" className="button-login-register">
+          Register
+        </button>
+      </form>
+      <div className="dataNavigation">
+        <a href="/">Login</a>
+        <a href="/forgot-password">Forgot Password</a>
+      </div>
     </div>
   );
 };

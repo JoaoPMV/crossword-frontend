@@ -1,0 +1,131 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.dataContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  background-image: url('/images/crosswordMobile.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.dataForm {
+  width: 65vw;
+  height: 38vh;
+  border-radius: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  margin-left: 5vw;
+  margin-top: 25vh;
+  gap: 2vw;
+}
+
+.dataForm input {
+  width: 100%;
+  padding: 8px;
+  outline: none;
+}
+
+.dataNavigation {
+  margin-left: 5vw;
+  margin-top: 10vw;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.dataNavigation a {
+  text-decoration: none;
+  color: rgb(27, 26, 26);
+}
+
+.error-login {
+  color: rgb(120, 6, 6);
+  margin: 0;
+  padding: 0;
+  height: 5vh;
+}
+
+.error-message {
+  height: 4vh;
+  color: red;
+  font-size: 1rem;
+  text-align: center;
+
+}
+
+.dataForm button {
+  color: white;
+  background-color: blue;
+  height: 5vh;
+  border: none;
+  border-radius: 5px;
+  text-align: center;
+  width: 22vw;
+}
+
+.register-name {
+  margin-bottom: 15px;
+}
+
+.anchor-register {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.anchor-register:hover {
+  color: rgb(17, 17, 163);
+}
+
+.error-message span {
+  display: block;
+}
+
+/* Telas maiores */
+
+@media (min-width: 787px) {
+  .dataContainer {
+    background-image: url('/images/crosswordDesktop2.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    align-items: end;
+    flex-direction: column;
+  }
+
+  .dataForm {
+    width: 65vw;
+    height: 46vh;
+    border-radius: 0.25rem;
+    display: flex;
+    flex-direction: column;
+    margin-left: 0;
+    margin-right: 3vw;
+    margin-top: 25vh;
+    gap: .5rem;
+    width: 45vw;
+  }
+
+  .dataForm button {
+    width: 10vw;
+  }
+
+  .dataNavigation {
+    margin-left: 0;
+    margin-right: 3vw;
+    margin-top: 3vw;
+    font-weight: bold;
+    gap: 0;
+    align-items: end;
+  }
+
+  .dataNavigation a:hover {
+    opacity: .7;
+  }
+}

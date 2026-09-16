@@ -45,6 +45,55 @@ export const loginUser = async (formData) => {
   }
 };
 
+// Função para solicitar recuperação de senha
+export const forgotPassword = async (email) => {
+  try {
+    const response = await fetch(`${API_URL}/api/users/forgot-password`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        errorData.error || "Erro ao solicitar recuperação de senha",
+      );
+    }
+
+    return await response.json();
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+// Função para redefinir a senha
+export const resetPassword = async (token, password) => {
+  try {
+    const response = await fetch(`${API_URL}/api/users/reset-password`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        token,
+        password,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Erro ao redefinir a senha");
+    }
+
+    return await response.json();
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
 // Função para buscar jogos
 export const fetchGames = async (level) => {
   try {
