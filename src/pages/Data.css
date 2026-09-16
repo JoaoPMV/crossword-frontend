@@ -8,7 +8,7 @@
   display: flex;
   flex-direction: column;
   height: 100dvh;
-  background-image: url('/images/crosswordMobile.png');
+  background-image: url('../assets/images/crosswordMobile.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -91,7 +91,7 @@
 
 @media (min-width: 787px) {
   .dataContainer {
-    background-image: url('/images/crosswordDesktop2.png');
+    background-image: url('../assets/images/crosswordDesktop.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
