@@ -1,17 +1,13 @@
-import React from "react";
 import CrosswordCell from "./CrosswordCell";
 
 export default function CrosswordGrid({
   gridCells,
   rows,
   cols,
-  inputRefs,
-  inputDirection,
-  setInputDirection,
-  setActiveCellIdx,
-  setGridCells,
-  moveFocus,
-  handleKeyboardAndBackspace,
+  registerInput,
+  onCellClick,
+  onCellChange,
+  onKeyDown,
 }) {
   return (
     <div
@@ -24,15 +20,10 @@ export default function CrosswordGrid({
           key={idx}
           cell={cell}
           idx={idx}
-          cols={cols}
-          inputRefs={inputRefs}
-          inputDirection={inputDirection}
-          setInputDirection={setInputDirection}
-          setActiveCellIdx={setActiveCellIdx}
-          gridCells={gridCells}
-          setGridCells={setGridCells}
-          moveFocus={moveFocus}
-          handleKeyboardAndBackspace={handleKeyboardAndBackspace}
+          registerInput={registerInput}
+          onCellClick={onCellClick}
+          onCellChange={onCellChange}
+          onKeyDown={onKeyDown}
         />
       ))}
     </div>

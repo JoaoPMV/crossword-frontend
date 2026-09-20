@@ -3,135 +3,226 @@ export function useCrosswordKeyboard({
   setGridCells,
   inputRefs,
   inputDirection,
+  setInputDirection,
   setActiveCellIdx,
   activeCellIdx,
   cols,
-  handleAutoSave,
 }) {
+  const updateCell = (index, changes) => {
+    setGridCells((currentGrid) =>
+      currentGrid.map((cell, cellIndex) =>
+        cellIndex === index
+          ? {
+              ...cell,
+              ...changes,
+            }
+          : cell,
+      ),
+    );
+  };
+
   const moveFocus = (currentIdx, directionCallback) => {
     let nextIndex = currentIdx;
 
     while (true) {
       nextIndex = directionCallback(nextIndex);
 
-      if (nextIndex < 0 || nextIndex >= gridCells.length) return;
+      if (nextIndex < 0 || nextIndex >= gridCells.length) {
+        return;
+      }
 
-      if (
-        gridCells[nextIndex]?.solution &&
-        gridCells[nextIndex]?.status !== "correct"
-      ) {
+      const nextCell = gridCells[nextIndex];
+
+      if (nextCell?.solution && nextCell.status !== "correct") {
         inputRefs.current[nextIndex]?.focus();
         return;
       }
     }
   };
 
-  const handleKeyboardNavigation = (idx, e) => {
-    if (!gridCells[idx]?.solution) return;
+  const handleCellClick = (idx) => {
+    const cell = gridCells[idx];
 
-    if (e.key === "ArrowRight") moveFocus(idx, (i) => i + 1);
-    if (e.key === "ArrowLeft") moveFocus(idx, (i) => i - 1);
-    if (e.key === "ArrowDown") moveFocus(idx, (i) => i + cols);
-    if (e.key === "ArrowUp") moveFocus(idx, (i) => i - cols);
+    if (!cell?.solution) {
+      return;
+    }
+
+    setActiveCellIdx(idx);
+
+    if (cell.isPartOfAcrossWord) {
+      setInputDirection("across");
+      return;
+    }
+
+    if (cell.isPartOfDownWord) {
+      setInputDirection("down");
+    }
   };
 
-  const handleKeyboardAndBackspace = (idx, e) => {
+  const handleCellChange = (idx, value) => {
+    const cell = gridCells[idx];
+
+    if (!cell?.solution || cell.status === "correct") {
+      return;
+    }
+
+    const letter = value.toUpperCase();
+    const status = !letter
+      ? "default"
+      : letter === cell.solution
+        ? "correct"
+        : "wrong";
+
+    updateCell(idx, {
+      letter,
+      status,
+    });
+
+    if (letter) {
+      moveFocus(
+        idx,
+        inputDirection === "down"
+          ? (index) => index + cols
+          : (index) => index + 1,
+      );
+    }
+  };
+
+  const handleKeyboardNavigation = (idx, event) => {
+    if (!gridCells[idx]?.solution) {
+      return;
+    }
+
+    if (event.key === "ArrowRight") {
+      moveFocus(idx, (index) => index + 1);
+    }
+
+    if (event.key === "ArrowLeft") {
+      moveFocus(idx, (index) => index - 1);
+    }
+
+    if (event.key === "ArrowDown") {
+      moveFocus(idx, (index) => index + cols);
+    }
+
+    if (event.key === "ArrowUp") {
+      moveFocus(idx, (index) => index - cols);
+    }
+  };
+
+  const handleKeyboardAndBackspace = (idx, event) => {
     if (gridCells[idx]?.status === "correct") {
-      e.preventDefault();
+      event.preventDefault();
       return;
     }
 
-    if (["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown"].includes(e.key)) {
-      handleKeyboardNavigation(idx, e);
+    if (
+      ["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown"].includes(event.key)
+    ) {
+      handleKeyboardNavigation(idx, event);
       return;
     }
 
-    if (e.key === "Backspace") {
-      if (!gridCells[idx]?.letter) {
-        let prevIdx = inputDirection === "down" ? idx - cols : idx - 1;
-
-        while (
-          prevIdx >= 0 &&
-          (!gridCells[prevIdx]?.solution ||
-            gridCells[prevIdx].status === "correct")
-        ) {
-          prevIdx = inputDirection === "down" ? prevIdx - cols : prevIdx - 1;
-        }
-
-        if (prevIdx >= 0) {
-          const newGrid = [...gridCells];
-          newGrid[prevIdx].letter = "";
-          newGrid[prevIdx].status = "default";
-          setGridCells(newGrid);
-          inputRefs.current[prevIdx]?.focus();
-          e.preventDefault();
-        }
-      }
+    if (event.key !== "Backspace" || gridCells[idx]?.letter) {
+      return;
     }
+
+    let previousIdx = inputDirection === "down" ? idx - cols : idx - 1;
+
+    while (
+      previousIdx >= 0 &&
+      (!gridCells[previousIdx]?.solution ||
+        gridCells[previousIdx].status === "correct")
+    ) {
+      previousIdx =
+        inputDirection === "down" ? previousIdx - cols : previousIdx - 1;
+    }
+
+    if (previousIdx < 0) {
+      return;
+    }
+
+    updateCell(previousIdx, {
+      letter: "",
+      status: "default",
+    });
+
+    inputRefs.current[previousIdx]?.focus();
+    event.preventDefault();
   };
 
   const handleVirtualKeyPress = (button) => {
-    if (activeCellIdx === null) return;
+    if (activeCellIdx === null) {
+      return;
+    }
 
-    const cell = gridCells[activeCellIdx];
-    if (!cell?.solution || cell.status === "correct") return;
+    const currentCell = gridCells[activeCellIdx];
 
-    const newGrid = [...gridCells];
+    if (!currentCell?.solution || currentCell.status === "correct") {
+      return;
+    }
 
     if (button === "{bksp}") {
-      if (newGrid[activeCellIdx].letter) {
-        newGrid[activeCellIdx].letter = "";
-        newGrid[activeCellIdx].status = "default";
-        setGridCells(newGrid);
+      if (currentCell.letter) {
+        updateCell(activeCellIdx, {
+          letter: "",
+          status: "default",
+        });
+
         return;
       }
 
-      let prevIdx =
+      let previousIdx =
         inputDirection === "down" ? activeCellIdx - cols : activeCellIdx - 1;
 
       while (
-        prevIdx >= 0 &&
-        (!gridCells[prevIdx]?.solution ||
-          gridCells[prevIdx].status === "correct")
+        previousIdx >= 0 &&
+        (!gridCells[previousIdx]?.solution ||
+          gridCells[previousIdx].status === "correct")
       ) {
-        prevIdx = inputDirection === "down" ? prevIdx - cols : prevIdx - 1;
+        previousIdx =
+          inputDirection === "down" ? previousIdx - cols : previousIdx - 1;
       }
 
-      if (prevIdx >= 0) {
-        newGrid[prevIdx].letter = "";
-        newGrid[prevIdx].status = "default";
-        setGridCells(newGrid);
-        setActiveCellIdx(prevIdx);
-        inputRefs.current[prevIdx]?.focus();
+      if (previousIdx >= 0) {
+        updateCell(previousIdx, {
+          letter: "",
+          status: "default",
+        });
+
+        setActiveCellIdx(previousIdx);
+        inputRefs.current[previousIdx]?.focus();
       }
 
       return;
     }
 
     const letter = button.toUpperCase();
-    newGrid[activeCellIdx].letter = letter;
-    newGrid[activeCellIdx].status =
-      letter === cell.solution ? "correct" : "wrong";
+    const status = letter === currentCell.solution ? "correct" : "wrong";
 
-    setGridCells(newGrid);
+    updateCell(activeCellIdx, {
+      letter,
+      status,
+    });
 
     const nextIdx =
       inputDirection === "down" ? activeCellIdx + cols : activeCellIdx + 1;
 
+    const nextCell = gridCells[nextIdx];
+
     if (
       nextIdx < gridCells.length &&
-      gridCells[nextIdx]?.solution &&
-      gridCells[nextIdx].status !== "correct"
+      nextCell?.solution &&
+      nextCell.status !== "correct"
     ) {
       setActiveCellIdx(nextIdx);
       inputRefs.current[nextIdx]?.focus();
     }
-
-    handleAutoSave();
   };
 
   return {
-    moveFocus,
+    handleCellChange,
+    handleCellClick,
     handleKeyboardAndBackspace,
     handleVirtualKeyPress,
   };

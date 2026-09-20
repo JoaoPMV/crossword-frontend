@@ -94,12 +94,12 @@ export const resetPassword = async (token, password) => {
   }
 };
 
-// Função para buscar jogos
-export const fetchGames = async (level) => {
+// Função para buscar um nível
+export const fetchLevel = async (level) => {
   try {
     const token = localStorage.getItem("authToken");
 
-    const response = await fetch(`${API_URL}/api/games/level/${level}`, {
+    const response = await fetch(`${API_URL}/api/levels/level/${level}`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
@@ -107,7 +107,7 @@ export const fetchGames = async (level) => {
     });
 
     if (!response.ok) {
-      throw new Error(`Erro ao buscar jogos (Status: ${response.status})`);
+      throw new Error(`Erro ao buscar nível (Status: ${response.status})`);
     }
 
     return await response.json();
@@ -118,11 +118,11 @@ export const fetchGames = async (level) => {
 };
 
 // Função para buscar todos os níveis
-export const fetchLevels = async () => {
+export const fetchLevelsList = async () => {
   try {
     const token = localStorage.getItem("authToken");
 
-    const response = await fetch(`${API_URL}/api/games/levels`, {
+    const response = await fetch(`${API_URL}/api/levels/levels`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
@@ -139,4 +139,23 @@ export const fetchLevels = async () => {
     console.error("Erro ao buscar níveis:", error.message);
     throw error;
   }
+};
+
+export const logoutUser = async () => {
+  const token = localStorage.getItem("authToken");
+
+  const response = await fetch(`${API_URL}/api/users/logout`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    console.log(data);
+    throw new Error("Erro ao fazer logout");
+  }
+
+  return await response.json();
 };

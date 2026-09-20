@@ -1,74 +1,121 @@
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import VirtualKeyboard from "../components/VirtualKeyboard";
-import CrosswordGrid from "../components/CrosswordGrid";
-import { useCrosswordKeyboard } from "../hooks/useCrosswordKeyboard";
-import {
-  useCrosswordGrid,
-  placeWordsIntoGrid,
-} from "../hooks/useCrosswordGrid";
-
-import { fetchGames } from "../api";
 
 import AudioPlayer from "../components/AudioPlayer";
+import CrosswordGrid from "../components/CrosswordGrid";
+import VirtualKeyboard from "../components/VirtualKeyboard";
+import { fetchLevel } from "../api";
+import { useCrosswordGrid } from "../hooks/useCrosswordGrid";
+import { useCrosswordKeyboard } from "../hooks/useCrosswordKeyboard";
 
 import "./crossword.css";
 
-export default function Teste({ rows = 11, cols = 11 }) {
+const EMPTY_WORDS = [];
+
+export default function Crossword({ rows = 11, cols = 11 }) {
   const navigate = useNavigate();
   const { level } = useParams();
 
-  const [levels, setLevels] = useState([]);
+  const [levelData, setLevelData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [currentLevelIdx, setCurrentLevelIdx] = useState(0);
-  const [inputDirection, setInputDirection] = useState("across"); // ou "down"
-  const [showHowToPlay, setShowHowToPlay] = useState(false);
-
+  const [inputDirection, setInputDirection] = useState("across");
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [activeCellIdx, setActiveCellIdx] = useState(null);
+
   const inputRefs = useRef([]);
+  const previousCorrect = useRef(false);
+
+  const registerInput = (idx, element) => {
+    inputRefs.current[idx] = element;
+  };
+
+  const words = levelData?.words ?? EMPTY_WORDS;
 
   const { gridCells, setGridCells, isAllCorrect } = useCrosswordGrid({
-    levels,
-    currentLevelIdx,
+    words,
     rows,
     cols,
   });
 
-  const { handleVirtualKeyPress, handleKeyboardAndBackspace, moveFocus } =
-    useCrosswordKeyboard({
-      gridCells,
-      setGridCells,
-      inputRefs,
-      inputDirection,
-      setActiveCellIdx,
-      activeCellIdx,
-      cols,
-    });
+  const {
+    handleCellChange,
+    handleCellClick,
+    handleKeyboardAndBackspace,
+    handleVirtualKeyPress,
+  } = useCrosswordKeyboard({
+    gridCells,
+    setGridCells,
+    inputRefs,
+    inputDirection,
+    setInputDirection,
+    setActiveCellIdx,
+    activeCellIdx,
+    cols,
+  });
+
+  const goToNextLevel = () => {
+    const nextLevel = Number(level) + 1;
+
+    setShowCompletionModal(false);
+    setActiveCellIdx(null);
+    previousCorrect.current = false;
+
+    navigate(`/crossword/${nextLevel}`);
+  };
 
   useEffect(() => {
-    const loadLevels = async () => {
+    if (isAllCorrect && !previousCorrect.current) {
+      setShowCompletionModal(true);
+    }
+
+    previousCorrect.current = isAllCorrect;
+  }, [isAllCorrect]);
+
+  useEffect(() => {
+    let isCurrentRequest = true;
+
+    const loadLevel = async () => {
       const token = localStorage.getItem("authToken");
+
       if (!token) {
-        navigate("/"); // Redireciona imediatamente se não houver token
+        navigate("/");
         return;
       }
+
+      setLoading(true);
+      setError("");
+      setLevelData(null);
+      setActiveCellIdx(null);
+      setShowCompletionModal(false);
+      previousCorrect.current = false;
+      inputRefs.current = [];
+
       try {
-        const data = await fetchGames(level);
-        setLevels(data); // Armazena os níveis no estado
-        if (data.length > 0) {
-          const { grid } = placeWordsIntoGrid(rows, cols, data[0].words);
-          setGridCells(grid); // Inicializa o grid
+        const levels = await fetchLevel(level);
+
+        if (!isCurrentRequest) {
+          return;
         }
+
+        setLevelData(levels[0] ?? null);
       } catch (err) {
-        setError(err.message || "Erro ao carregar níveis");
+        if (isCurrentRequest) {
+          setError(err.message || "Erro ao carregar nível");
+        }
       } finally {
-        setLoading(false);
+        if (isCurrentRequest) {
+          setLoading(false);
+        }
       }
     };
 
-    loadLevels();
-  }, [rows, cols, navigate, level]);
+    loadLevel();
+
+    return () => {
+      isCurrentRequest = false;
+    };
+  }, [level, navigate]);
 
   if (loading) {
     return <p>Carregando...</p>;
@@ -79,60 +126,46 @@ export default function Teste({ rows = 11, cols = 11 }) {
   }
 
   return (
-    <>
-      <div id="grid-crossword">
-        <div className="blur-background"></div>
-        <div>
-          {showHowToPlay && (
-            <p className="rules">
-              Click the "Play Audio" button. You will hear a short dialogue
-              containing all the words you need to complete the crossword
-              puzzle.
-            </p>
-          )}
+    <div id="grid-crossword">
+      <div className="blur-background"></div>
+
+      <main className="main-crossword">
+        <div className="box-crossword-grid">
+          <CrosswordGrid
+            gridCells={gridCells}
+            rows={rows}
+            cols={cols}
+            registerInput={registerInput}
+            onCellClick={handleCellClick}
+            onCellChange={handleCellChange}
+            onKeyDown={handleKeyboardAndBackspace}
+          />
         </div>
+      </main>
 
-        <main className="main-crossword">
-          <div className="box-crossword-grid">
-            <CrosswordGrid
-              gridCells={gridCells || []}
-              rows={rows}
-              cols={cols}
-              inputRefs={inputRefs}
-              inputDirection={inputDirection}
-              setInputDirection={setInputDirection}
-              setActiveCellIdx={setActiveCellIdx}
-              setGridCells={setGridCells}
-              handleKeyboardAndBackspace={handleKeyboardAndBackspace}
-              moveFocus={moveFocus}
-            />
-          </div>
-        </main>
+      <p className="level-crossword">
+        {levelData?.title || "Nível desconhecido"}
+      </p>
 
-        <p className="level-crossword">
-          {levels[currentLevelIdx]?.title || "Nível desconhecido"}
-        </p>
-
-        <div className="buttons-crossword">
-          <AudioPlayer src={levels[currentLevelIdx]?.audio || ""} />
-
-          <button
-            className={`${isAllCorrect ? "correct" : ""}`}
-            onClick={() => {
-              if (!isAllCorrect) return; // Bloqueia o clique se o botão estiver desabilitado
-              const nextIdx = (currentLevelIdx + 1) % levels.length;
-              setCurrentLevelIdx(nextIdx);
-            }}
-          >
-            Next
-          </button>
-          <button onClick={() => setShowHowToPlay(!showHowToPlay)}>
-            <p>Rules</p>
-          </button>
-        </div>
-
-        <VirtualKeyboard onKeyPress={handleVirtualKeyPress} />
+      <div className="buttons-crossword">
+        <AudioPlayer src={levelData?.audio || ""} />
       </div>
-    </>
+
+      <VirtualKeyboard onKeyPress={handleVirtualKeyPress} />
+
+      {showCompletionModal && (
+        <div className="completion-modal">
+          <div className="completion-content">
+            <h2>Congratulations!</h2>
+            <p>You completed this level!</p>
+            <p>Ready for the next challenge?</p>
+
+            <button type="button" onClick={goToNextLevel}>
+              Next Level
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

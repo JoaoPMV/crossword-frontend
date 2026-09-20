@@ -14,7 +14,7 @@ export default function VirtualKeyboard({ onKeyPress }) {
           ],
         }}
         display={{
-          "{empty}": " ",
+          "{bksp}": "←",
         }}
       />
     </div>

@@ -1,0 +1,85 @@
+* {
+  box-sizing: border-box;
+}
+
+.grid-list {
+  background-image: url('../assets/images/red.jpg');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 10dvh 90dvh;
+}
+
+.header-list {
+  grid-row: 1 / 2;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  padding: 0 1rem;
+}
+
+.header-list button {
+  display: flex;
+  align-items: center;
+  height: 5dvh;
+  border: none;
+  padding: 5px 10px;
+  background-color: transparent;
+  border: 1px solid white;
+  color: white;
+  border-radius: 5px;
+}
+
+.main-list {
+  grid-row: 2 / 3;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.crossword-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  text-decoration: none;
+  background-color: white;
+  border-radius: 10px;
+  width: 50vw;
+  padding: 10px;
+}
+
+.crossword-card p {
+  margin: 0;
+  padding: 0;
+  color: black;
+
+}
+
+@media (min-width: 1025px) {
+  .main-list {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-auto-rows: max-content;
+    gap: 1rem;
+
+  }
+
+  .crossword-card {
+
+    width: 14vw;
+    height: 50px;
+    padding: 1rem;
+  }
+
+
+
+
+
+}

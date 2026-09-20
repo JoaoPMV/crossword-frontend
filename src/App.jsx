@@ -7,7 +7,7 @@ import Login from "./pages/Login";
 import Logout from "./pages/Logout";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
-import List from "./pages/list/List";
+import List from "./pages/List";
 import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
