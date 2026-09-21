@@ -159,3 +159,53 @@ export const logoutUser = async () => {
 
   return await response.json();
 };
+
+// Carregar o progresso do usuário
+export const loadProgress = async () => {
+  const token = localStorage.getItem("authToken");
+
+  const response = await fetch(`${API_URL}/api/progress`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+
+    throw new Error(data.message || "Erro ao carregar o progresso");
+  }
+
+  return await response.json();
+};
+
+// Salvar o progresso do usuário
+export const saveProgress = async ({
+  completedPuzzles,
+  currentLevel,
+  currentState,
+}) => {
+  const token = localStorage.getItem("authToken");
+
+  const response = await fetch(`${API_URL}/api/progress`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      completedPuzzles,
+      currentLevel,
+      currentState,
+    }),
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+
+    throw new Error(data.message || "Erro ao salvar o progresso");
+  }
+
+  return await response.json();
+};

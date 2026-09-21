@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import AudioPlayer from "../components/AudioPlayer";
 import CrosswordGrid from "../components/CrosswordGrid";
 import VirtualKeyboard from "../components/VirtualKeyboard";
-import { fetchLevel } from "../api";
+import { fetchLevel, loadProgress, saveProgress } from "../api";
 import { useCrosswordGrid } from "../hooks/useCrosswordGrid";
 import { useCrosswordKeyboard } from "../hooks/useCrosswordKeyboard";
 
@@ -12,19 +12,29 @@ import "./crossword.css";
 
 const EMPTY_WORDS = [];
 
+const EMPTY_PROGRESS = {
+  completedPuzzles: [],
+  currentLevel: 1,
+  currentState: {},
+};
+
 export default function Crossword({ rows = 11, cols = 11 }) {
   const navigate = useNavigate();
   const { level } = useParams();
+
+  const currentLevelNumber = Number(level);
 
   const [levelData, setLevelData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [inputDirection, setInputDirection] = useState("across");
-  const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [activeCellIdx, setActiveCellIdx] = useState(null);
+
+  const [restoredState, setRestoredState] = useState({});
 
   const inputRefs = useRef([]);
   const previousCorrect = useRef(false);
+  const progressRef = useRef(EMPTY_PROGRESS);
 
   const registerInput = (idx, element) => {
     inputRefs.current[idx] = element;
@@ -54,24 +64,38 @@ export default function Crossword({ rows = 11, cols = 11 }) {
     cols,
   });
 
-  const goToNextLevel = () => {
-    const nextLevel = Number(level) + 1;
-
-    setShowCompletionModal(false);
-    setActiveCellIdx(null);
-    previousCorrect.current = false;
-
-    navigate(`/crossword/${nextLevel}`);
+  const updateProgressState = (newProgress) => {
+    progressRef.current = newProgress;
   };
 
-  useEffect(() => {
-    if (isAllCorrect && !previousCorrect.current) {
-      setShowCompletionModal(true);
-    }
+  const handleCellChangeAndSave = (idx, value) => {
+    handleCellChange(idx, value);
 
-    previousCorrect.current = isAllCorrect;
-  }, [isAllCorrect]);
+    const letter = value.toUpperCase();
 
+    const newState = {
+      ...progressRef.current.currentState,
+      [idx]: letter,
+    };
+
+    const newProgress = {
+      ...progressRef.current,
+      currentLevel: currentLevelNumber,
+      currentState: newState,
+    };
+
+    updateProgressState(newProgress);
+
+    saveProgress({
+      completedPuzzles: newProgress.completedPuzzles,
+      currentLevel: currentLevelNumber,
+      currentState: newState,
+    }).catch((err) => {
+      console.error("Erro ao salvar progresso:", err);
+    });
+  };
+
+  // Carrega o nível e o progresso do usuário
   useEffect(() => {
     let isCurrentRequest = true;
 
@@ -86,19 +110,46 @@ export default function Crossword({ rows = 11, cols = 11 }) {
       setLoading(true);
       setError("");
       setLevelData(null);
+      setRestoredState({});
       setActiveCellIdx(null);
-      setShowCompletionModal(false);
+
       previousCorrect.current = false;
       inputRefs.current = [];
 
       try {
-        const levels = await fetchLevel(level);
+        const [levels, userProgress] = await Promise.all([
+          fetchLevel(currentLevelNumber),
+          loadProgress(),
+        ]);
 
         if (!isCurrentRequest) {
           return;
         }
 
-        setLevelData(levels[0] ?? null);
+        const loadedLevel = levels[0] ?? null;
+
+        if (!loadedLevel) {
+          throw new Error("Nível não encontrado");
+        }
+
+        const savedProgress = userProgress || EMPTY_PROGRESS;
+
+        const isSavedProgressFromCurrentLevel =
+          Number(savedProgress.currentLevel) === currentLevelNumber;
+
+        const currentState = isSavedProgressFromCurrentLevel
+          ? savedProgress.currentState || {}
+          : {};
+
+        const loadedProgress = {
+          completedPuzzles: savedProgress.completedPuzzles || [],
+          currentLevel: currentLevelNumber,
+          currentState,
+        };
+
+        setLevelData(loadedLevel);
+        setRestoredState(currentState);
+        updateProgressState(loadedProgress);
       } catch (err) {
         if (isCurrentRequest) {
           setError(err.message || "Erro ao carregar nível");
@@ -115,7 +166,70 @@ export default function Crossword({ rows = 11, cols = 11 }) {
     return () => {
       isCurrentRequest = false;
     };
-  }, [level, navigate]);
+  }, [currentLevelNumber, navigate]);
+
+  // Restaura as letras salvas no grid
+  useEffect(() => {
+    if (!levelData || !restoredState) {
+      return;
+    }
+
+    setGridCells((previousCells) =>
+      previousCells.map((cell, idx) => {
+        if (!Object.prototype.hasOwnProperty.call(restoredState, idx)) {
+          return cell;
+        }
+
+        const letter = restoredState[idx];
+
+        const status = !letter
+          ? "default"
+          : letter === cell.solution
+            ? "correct"
+            : "wrong";
+
+        return {
+          ...cell,
+          letter,
+          status,
+        };
+      }),
+    );
+  }, [levelData, restoredState, setGridCells]);
+
+  // Salva o nível como concluído
+  useEffect(() => {
+    if (!levelData || levelData.level !== currentLevelNumber) {
+      return;
+    }
+
+    if (!isAllCorrect || previousCorrect.current) {
+      previousCorrect.current = isAllCorrect;
+      return;
+    }
+
+    const completedPuzzles = Array.from(
+      new Set([...progressRef.current.completedPuzzles, currentLevelNumber]),
+    );
+
+    const newProgress = {
+      ...progressRef.current,
+      completedPuzzles,
+      currentLevel: currentLevelNumber,
+    };
+
+    updateProgressState(newProgress);
+
+    saveProgress({
+      completedPuzzles,
+      currentLevel: currentLevelNumber,
+      currentState: progressRef.current.currentState,
+    }).catch((err) => {
+      console.error("Erro ao salvar conclusão do nível:", err);
+    });
+
+    previousCorrect.current = true;
+  }, [isAllCorrect, currentLevelNumber, levelData]);
 
   if (loading) {
     return <p>Carregando...</p>;
@@ -137,7 +251,7 @@ export default function Crossword({ rows = 11, cols = 11 }) {
             cols={cols}
             registerInput={registerInput}
             onCellClick={handleCellClick}
-            onCellChange={handleCellChange}
+            onCellChange={handleCellChangeAndSave}
             onKeyDown={handleKeyboardAndBackspace}
           />
         </div>
@@ -152,20 +266,6 @@ export default function Crossword({ rows = 11, cols = 11 }) {
       </div>
 
       <VirtualKeyboard onKeyPress={handleVirtualKeyPress} />
-
-      {showCompletionModal && (
-        <div className="completion-modal">
-          <div className="completion-content">
-            <h2>Congratulations!</h2>
-            <p>You completed this level!</p>
-            <p>Ready for the next challenge?</p>
-
-            <button type="button" onClick={goToNextLevel}>
-              Next Level
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
