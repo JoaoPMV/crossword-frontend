@@ -1,0 +1,27 @@
+.player-container {
+  background: linear-gradient(135deg, #e5e6e7, #cfd4da);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px 15px;
+  gap: 10px;
+  border-radius: 30px;
+  height: 7vh;
+  cursor: pointer;
+}
+
+.buttons-audio {
+  display: flex;
+
+}
+
+.buttons-audio button {
+  border: none;
+  border-radius: 5px;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.buttons-audio span {
+  font-size: 28px;
+}

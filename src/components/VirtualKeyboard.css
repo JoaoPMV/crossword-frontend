@@ -1,0 +1,17 @@
+.keyboard {
+  width: 100%;
+}
+
+.keyboard-row {
+  gap: 2px;
+  display: flex;
+  justify-content: center;
+
+  height: 7dvh;
+}
+
+.vk__key {
+
+  width: 35px;
+  height: 35px;
+}

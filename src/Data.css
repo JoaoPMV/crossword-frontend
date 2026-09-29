@@ -1,0 +1,92 @@
+.data-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: end;
+  height: 100vh;
+  background-image: url('./assets/images/background-desktop.png');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+}
+
+.data-form {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  gap: .5rem;
+  margin-right: 5vw;
+  height: 48vh;
+  width: 36vw;
+}
+
+.data-form p {
+  margin: 5vh 0;
+}
+
+.data-form input {
+  width: 36vw;
+  height: 5vh;
+  padding-left: .5vw;
+}
+
+.data-form button {
+  width: 10vw;
+  height: 5vh;
+}
+
+.data-navigators {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  margin-right: 5vw;
+  gap: 1vh;
+}
+
+.data-navigators button {
+  border: none;
+  background-color: transparent;
+  font-size: 15px;
+}
+
+.data-navigators button:hover {
+  opacity: .7;
+}
+
+
+
+.data-result {
+  height: 4vh;
+}
+
+.data-result p {
+  margin: 0;
+  color: red;
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .data-container {
+    height: 100dvh;
+    align-items: end;
+  }
+
+  .data-form {
+    width: 60vw;
+    height: 50vh;
+  }
+
+  .data-form input {
+    width: 59vw;
+    height: 6vh;
+  }
+
+  .data-form button {
+    width: 25vw;
+    height: 6vh;
+  }
+
+  .data-form p {
+    margin: 1vh 0;
+  }
+}
