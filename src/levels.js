@@ -11,6 +11,7 @@ export async function fetchLevels() {
   const response = await fetch(`${API_URL}/levels`, {
     headers: {
       Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
     },
   });
 
