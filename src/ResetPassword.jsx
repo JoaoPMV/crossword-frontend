@@ -1,49 +1,68 @@
 import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { resetPassword } from "./users";
 import "./Data.css";
 
 function ResetPassword() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const token = searchParams.get("token");
-
+  const [error, setError] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
   async function handleSubmit(event) {
     event.preventDefault();
 
-    if (password !== confirmPassword) {
-      alert("As senhas não coincidem.");
+    if (!password.trim()) {
+      setError("Password is required");
       return;
     }
 
-    const response = await resetPassword(token, password);
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
 
-    console.log(response);
+    setError("");
+
+    try {
+      await resetPassword(token, password);
+      navigate("/");
+    } catch {
+      setError("Unable to reset password");
+    }
   }
 
   return (
     <div className="data-container">
       <form className="data-form" onSubmit={handleSubmit}>
-        <h1>Reset Password</h1>
         <p>Please enter your new password.</p>
+
         <input
           type="password"
-          placeholder="Nova senha"
+          placeholder="New password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => {
+            setPassword(e.target.value);
+            setError("");
+          }}
         />
 
         <input
           type="password"
-          placeholder="Confirmar nova senha"
+          placeholder="Confirm new password"
           value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
+          onChange={(e) => {
+            setConfirmPassword(e.target.value);
+            setError("");
+          }}
         />
 
-        <button type="submit">Redefinir senha</button>
+        {error && <p>{error}</p>}
+
+        <button type="submit">Reset password</button>
       </form>
     </div>
   );

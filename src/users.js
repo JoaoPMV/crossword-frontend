@@ -53,7 +53,11 @@ export async function resetPassword(token, password) {
     }),
   });
 
-  return response.json();
+  if (!response.ok) {
+    throw new Error("Failed to reset password");
+  }
+
+  return response.text();
 }
 
 export async function forgotPassword(email) {
@@ -61,7 +65,7 @@ export async function forgotPassword(email) {
     `${API_URL}/users/forgot-password?email=${encodeURIComponent(email)}`,
     { method: "POST" },
   );
-  return response.json();
+  return response.text();
 }
 
 export async function logoutUser() {
