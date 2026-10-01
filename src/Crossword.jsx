@@ -5,15 +5,84 @@ import AudioPlayer from "./components/AudioPlayer";
 import VirtualKeyboard from "./components/VirtualKeyboard";
 import "./Crossword.css";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
+function getUserIdFromToken() {
+  const token = localStorage.getItem("token");
+
+  if (!token) return null;
+
+  try {
+    const payload = JSON.parse(
+      atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")),
+    );
+
+    return payload.userId;
+  } catch {
+    return null;
+  }
+}
+
 function Crossword() {
   const { id } = useParams();
   const [level, setLevel] = useState(null);
+  const [progressId, setProgressId] = useState(null);
+
   const isTouch = window.matchMedia("(pointer: coarse)").matches;
 
+  const [userBoard, setUserBoard] = useState(
+    Array.from({ length: 15 }, () => Array(15).fill("")),
+  );
+
+  const [selectedCell, setSelectedCell] = useState(null);
+  const [selectedDirection, setSelectedDirection] = useState(null);
+
   useEffect(() => {
-    fetchLevel(id).then((data) => {
+    async function loadData() {
+      const data = await fetchLevel(id);
       setLevel(data);
-    });
+
+      const token = localStorage.getItem("token");
+      const userId = getUserIdFromToken();
+
+      if (!token || !userId) return;
+
+      const response = await fetch(`${API_URL}/progress/${userId}/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const progress = await response.json();
+
+        setProgressId(progress.id);
+
+        if (progress.answers) {
+          try {
+            const answers = JSON.parse(progress.answers);
+
+            const savedBoard = Array.from({ length: 15 }, () =>
+              Array(15).fill(""),
+            );
+
+            Object.entries(answers).forEach(([position, letter]) => {
+              const [row, col] = position.split(",").map(Number);
+
+              if (row >= 0 && row < 15 && col >= 0 && col < 15) {
+                savedBoard[row][col] = letter;
+              }
+            });
+
+            setUserBoard(savedBoard);
+          } catch {
+            console.error("Não foi possível carregar as respostas salvas.");
+          }
+        }
+      }
+    }
+
+    loadData();
   }, [id]);
 
   const words = level?.words || [];
@@ -29,12 +98,50 @@ function Crossword() {
     });
   });
 
-  const [userBoard, setUserBoard] = useState(
-    Array.from({ length: 15 }, () => Array(15).fill("")),
-  );
+  async function saveProgress(newBoard) {
+    const token = localStorage.getItem("token");
+    const userId = getUserIdFromToken();
 
-  const [selectedCell, setSelectedCell] = useState(null);
-  const [selectedDirection, setSelectedDirection] = useState(null);
+    if (!token || !userId) return;
+
+    const answers = {};
+
+    newBoard.forEach((row, rowIndex) => {
+      row.forEach((letter, colIndex) => {
+        if (letter !== "") {
+          answers[`${rowIndex},${colIndex}`] = letter;
+        }
+      });
+    });
+
+    const progress = {
+      userId: Number(userId),
+      levelId: Number(id),
+      answers: JSON.stringify(answers),
+      completed: false,
+    };
+
+    if (progressId) {
+      progress.id = progressId;
+    }
+
+    const response = await fetch(`${API_URL}/progress`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(progress),
+    });
+
+    if (response.ok) {
+      const savedProgress = await response.json();
+
+      if (!progressId) {
+        setProgressId(savedProgress.id);
+      }
+    }
+  }
 
   function handleChange(rowIndex, colIndex, value) {
     const newBoard = userBoard.map((row) => [...row]);
@@ -45,6 +152,8 @@ function Crossword() {
     newBoard[rowIndex][colIndex] = letter;
 
     setUserBoard(newBoard);
+
+    saveProgress(newBoard);
 
     if (letter !== "") {
       moveToNextCell(rowIndex, colIndex);
@@ -83,6 +192,7 @@ function Crossword() {
 
   function handleVirtualKey(letter) {
     if (!selectedCell) return;
+
     handleChange(selectedCell.row, selectedCell.col, letter);
   }
 
@@ -92,10 +202,8 @@ function Crossword() {
     const { row, col } = selectedCell;
 
     if (userBoard[row][col] !== "") {
-      // tem letra: só apaga
       handleChange(row, col, "");
     } else {
-      // célula vazia: volta e apaga a anterior
       moveToPreviousCell(row, col);
     }
   }
@@ -176,6 +284,7 @@ function Crossword() {
   return (
     <div className="board-container">
       <h1 className="level-name">{level?.name}</h1>
+
       <div className="board">
         {board.map((row, rowIndex) =>
           row.map((cell, colIndex) => {
@@ -228,6 +337,7 @@ function Crossword() {
           }),
         )}
       </div>
+
       <div className="level-audio">
         <AudioPlayer audio={level?.audio} />
       </div>
