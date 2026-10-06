@@ -1,16 +1,25 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { fetchLevel } from "../services/levels";
 import { getUserIdFromToken } from "../services/users";
 import { fetchProgress, saveProgressRequest } from "../services/progress";
 
+function createEmptyBoard() {
+  return Array.from({ length: 15 }, () => Array(15).fill(""));
+}
+
 function useCrossword(id) {
   const [level, setLevel] = useState(null);
   const [error, setError] = useState("");
-  const [progressId, setProgressId] = useState(null);
 
-  const [userBoard, setUserBoard] = useState(
-    Array.from({ length: 15 }, () => Array(15).fill("")),
-  );
+  // O id do progresso agora fica em um ref: sempre tem o valor atual,
+  // mesmo dentro de funções assíncronas criadas em renders anteriores.
+  const progressIdRef = useRef(null);
+
+  // Fila de salvamentos: garante que as requisições rodem em ordem
+  // e que o primeiro salvamento termine (e defina o id) antes do próximo.
+  const saveQueueRef = useRef(Promise.resolve());
+
+  const [userBoard, setUserBoard] = useState(createEmptyBoard);
 
   const [selectedCell, setSelectedCell] = useState(null);
   const [selectedDirection, setSelectedDirection] = useState(null);
@@ -18,6 +27,12 @@ function useCrossword(id) {
   useEffect(() => {
     async function loadData() {
       setError("");
+
+      // Reseta o estado ao trocar de fase, para não salvar a fase B
+      // em cima do registro de progresso da fase A.
+      progressIdRef.current = null;
+      saveQueueRef.current = Promise.resolve();
+      setUserBoard(createEmptyBoard());
 
       let data;
 
@@ -36,18 +51,24 @@ function useCrossword(id) {
 
       if (!userId) return;
 
-      const progress = await fetchProgress(userId, id);
+      let progress;
+
+      try {
+        progress = await fetchProgress(userId, id);
+      } catch (err) {
+        console.error("Erro ao buscar progresso:", err);
+        setError("Não foi possível carregar seu progresso salvo.");
+        return;
+      }
 
       if (progress) {
-        setProgressId(progress.id);
+        progressIdRef.current = progress.id;
 
         if (progress.answers) {
           try {
             const answers = JSON.parse(progress.answers);
 
-            const savedBoard = Array.from({ length: 15 }, () =>
-              Array(15).fill(""),
-            );
+            const savedBoard = createEmptyBoard();
 
             Object.entries(answers).forEach(([position, letter]) => {
               const [row, col] = position.split(",").map(Number);
@@ -82,7 +103,7 @@ function useCrossword(id) {
     });
   });
 
-  async function saveProgress(newBoard) {
+  function saveProgress(newBoard) {
     const userId = getUserIdFromToken();
 
     if (!userId) return;
@@ -97,22 +118,31 @@ function useCrossword(id) {
       });
     });
 
-    const progress = {
-      userId: Number(userId),
-      levelId: Number(id),
-      answers: JSON.stringify(answers),
-      completed: false,
-    };
+    // Encadeia este salvamento na fila: ele só começa quando o anterior terminar.
+    saveQueueRef.current = saveQueueRef.current
+      .then(async () => {
+        const progress = {
+          userId: Number(userId),
+          levelId: Number(id),
+          answers: JSON.stringify(answers),
+          completed: false,
+        };
 
-    if (progressId) {
-      progress.id = progressId;
-    }
+        // Lê o id no momento da execução, não no momento do clique.
+        if (progressIdRef.current) {
+          progress.id = progressIdRef.current;
+        }
 
-    const savedProgress = await saveProgressRequest(progress);
+        const saved = await saveProgressRequest(progress);
 
-    if (savedProgress && !progressId) {
-      setProgressId(savedProgress.id);
-    }
+        if (saved?.id) {
+          progressIdRef.current = saved.id;
+        }
+      })
+      .catch((err) => {
+        // O catch mantém a fila viva mesmo se um salvamento falhar.
+        console.error("Erro ao salvar progresso:", err);
+      });
   }
 
   function handleChange(rowIndex, colIndex, value) {
