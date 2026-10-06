@@ -44,7 +44,7 @@ export default function VirtualKeyboard({
               <button
                 key={key}
                 type="button"
-                className={`vk__key ${isBackspace ? "vk__key--wide" : ""}`}
+                className={`keycap ${isBackspace ? "vk__key--wide" : ""}`}
                 onPointerDown={(e) => handlePress(e, key)}
                 onClick={(e) => e.preventDefault()}
                 disabled={disabled}

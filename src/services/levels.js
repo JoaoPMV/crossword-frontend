@@ -1,11 +1,16 @@
 const API_URL = import.meta.env.VITE_API_URL;
 
+function redirectToLogin() {
+  localStorage.removeItem("token");
+  window.location.href = "/";
+}
+
 export async function fetchLevels() {
   const token = localStorage.getItem("token");
 
   if (!token) {
-    window.location.href = "/";
-    return;
+    redirectToLogin();
+    return [];
   }
 
   const response = await fetch(`${API_URL}/levels`, {
@@ -16,9 +21,12 @@ export async function fetchLevels() {
   });
 
   if (response.status === 401) {
-    localStorage.removeItem("token");
-    window.location.href = "/";
-    return;
+    redirectToLogin();
+    return [];
+  }
+
+  if (!response.ok) {
+    throw new Error("Não foi possível carregar os níveis");
   }
 
   return response.json();
@@ -28,8 +36,8 @@ export async function fetchLevel(id) {
   const token = localStorage.getItem("token");
 
   if (!token) {
-    window.location.href = "/";
-    return;
+    redirectToLogin();
+    return null;
   }
 
   const response = await fetch(`${API_URL}/levels/${id}`, {
@@ -39,9 +47,22 @@ export async function fetchLevel(id) {
   });
 
   if (response.status === 401) {
-    localStorage.removeItem("token");
-    window.location.href = "/";
-    return;
+    redirectToLogin();
+    return null;
+  }
+
+  if (response.status === 403) {
+    throw new Error(
+      "Este nível não está disponível para o seu nível de inglês",
+    );
+  }
+
+  if (response.status === 404) {
+    throw new Error("Nível não encontrado");
+  }
+
+  if (!response.ok) {
+    throw new Error("Não foi possível carregar o nível");
   }
 
   return response.json();

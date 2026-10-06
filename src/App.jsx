@@ -1,19 +1,25 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import List from "./List";
-import Crossword from "./Crossword";
-import Register from "./Register";
-import Login from "./Login";
-import ResetPassword from "./ResetPassword";
-import ForgotPassword from "./ForgotPassword";
+import Levels from "./pages/Levels";
+import Crossword from "./pages/Crossword";
+import Register from "./pages/Register";
+import Login from "./pages/Login";
+import ResetPassword from "./pages/ResetPassword";
+import ForgotPassword from "./pages/ForgotPassword";
+import UserProfile from "./pages/UserProfile";
+import Cards from "./pages/Home";
+import Home from "./pages/Home";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/levels" element={<List />} />
+        <Route path="/cards" element={<Cards />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/levels" element={<Levels />} />
+        <Route path="/profile" element={<UserProfile />} />
         <Route path="/crossword/:id" element={<Crossword />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>

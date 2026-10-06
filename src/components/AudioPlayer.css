@@ -5,9 +5,11 @@
   align-items: center;
   padding: 5px 15px;
   gap: 10px;
-  border-radius: 30px;
+  border-top-left-radius: 30px;
+  border-bottom-left-radius: 30px;
   height: 7vh;
   cursor: pointer;
+  width: 17vw;
 }
 
 .buttons-audio {
@@ -20,8 +22,21 @@
   border-radius: 5px;
   background-color: transparent;
   cursor: pointer;
+  display: flex;
 }
 
 .buttons-audio span {
   font-size: 28px;
+}
+
+.buttons-audio span:hover {
+  color: rgb(47, 46, 46);
+}
+
+@media (max-width: 767px) {
+
+  .player-container {
+    width: 67vw;
+  }
+
 }

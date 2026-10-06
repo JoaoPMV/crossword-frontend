@@ -1,0 +1,174 @@
+.data-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-image: url('../assets/images/background-trial.jpg');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  z-index: 1;
+}
+
+.data-form {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  gap: .5rem;
+  height: 65vh;
+  width: 36vw;
+  z-index: 1;
+}
+
+.data-form h1 {
+  color: white;
+}
+
+.data-form p {
+  margin-bottom: 2vh;
+  color: white;
+}
+
+.data-form input {
+  width: 36vw;
+  height: 5vh;
+  padding-left: .5vw;
+  background-color: #eeecec;
+  border: none;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #eeecec inset;
+  -webkit-text-fill-color: #000;
+}
+
+.data-form button {
+  width: 8rem;
+  height: 3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(140.14deg, #ec540e 15.05%, #d6361f 114.99%) padding-box,
+    linear-gradient(142.51deg, #ff9465 8.65%, #af1905 88.82%) border-box;
+  border-radius: 7px;
+  border: 2px solid transparent;
+  text-shadow: 1px 1px 1px #00000040;
+  box-shadow: 8px 8px 20px 0px #45090059;
+  padding: 10px;
+  line-height: 20px;
+  cursor: pointer;
+  transition: all 0.3s;
+  color: white;
+}
+
+.proficiency-group {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  width: 36vw;
+  color: white;
+}
+
+.proficiency-option {
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  color: white;
+
+}
+
+.proficiency-option input {
+  width: 13px;
+  height: 13px;
+}
+
+.data-navigators {
+  display: flex;
+  align-items: center;
+  gap: 1vh;
+  z-index: 1;
+}
+
+.data-navigators button {
+  border: none;
+  background-color: transparent;
+  font-size: 15px;
+  color: white;
+  border: 1px solid white;
+  padding: 5px;
+  width: 10vw;
+}
+
+.data-navigators button:hover {
+  opacity: .7;
+}
+
+.data-result {
+  height: 4vh;
+}
+
+.data-result p {
+  margin: 0;
+  color: red;
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .data-container {
+    height: 100dvh;
+    align-items: center;
+    justify-content: start;
+    align-items: center;
+    padding-top: 2dvh;
+  }
+
+  .data-form {
+    width: 60vw;
+    height: 60vh;
+  }
+
+  .data-form input {
+    width: 59vw;
+    height: 6vh;
+    padding-left: 8px;
+  }
+
+  .data-form button {
+    width: 25vw;
+    height: 6vh;
+  }
+
+  .data-form p {
+    margin: 1vh 0;
+  }
+
+  .proficiency-group {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: 59vw;
+    gap: 5px;
+  }
+
+  .proficiency-option {
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+
+  }
+
+  .proficiency-option input {
+    width: 18px;
+    height: 18px;
+  }
+
+  .data-navigators button {
+    width: 40vw;
+  }
+}

@@ -96,7 +96,7 @@ function AudioPlayer({ audio }) {
         </button>
       </div>
 
-      <p>
+      <p className="time-player">
         {formatTime(currentTime)} / {formatTime(duration)}
       </p>
     </div>

@@ -1,34 +1,12 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { fetchLevel } from "./levels";
-import AudioPlayer from "./components/AudioPlayer";
-import VirtualKeyboard from "./components/VirtualKeyboard";
-import "./Crossword.css";
+import { fetchLevel } from "../services/levels";
+import { getUserIdFromToken } from "../services/users";
+import { fetchProgress, saveProgressRequest } from "../services/progress";
 
-const API_URL = import.meta.env.VITE_API_URL;
-
-function getUserIdFromToken() {
-  const token = localStorage.getItem("token");
-
-  if (!token) return null;
-
-  try {
-    const payload = JSON.parse(
-      atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")),
-    );
-
-    return payload.userId;
-  } catch {
-    return null;
-  }
-}
-
-function Crossword() {
-  const { id } = useParams();
+function useCrossword(id) {
   const [level, setLevel] = useState(null);
+  const [error, setError] = useState("");
   const [progressId, setProgressId] = useState(null);
-
-  const isTouch = window.matchMedia("(pointer: coarse)").matches;
 
   const [userBoard, setUserBoard] = useState(
     Array.from({ length: 15 }, () => Array(15).fill("")),
@@ -39,23 +17,28 @@ function Crossword() {
 
   useEffect(() => {
     async function loadData() {
-      const data = await fetchLevel(id);
+      setError("");
+
+      let data;
+
+      try {
+        data = await fetchLevel(id);
+      } catch (err) {
+        setError(err.message);
+        return;
+      }
+
+      if (!data) return;
+
       setLevel(data);
 
-      const token = localStorage.getItem("token");
       const userId = getUserIdFromToken();
 
-      if (!token || !userId) return;
+      if (!userId) return;
 
-      const response = await fetch(`${API_URL}/progress/${userId}/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const progress = await fetchProgress(userId, id);
 
-      if (response.ok) {
-        const progress = await response.json();
-
+      if (progress) {
         setProgressId(progress.id);
 
         if (progress.answers) {
@@ -92,6 +75,7 @@ function Crossword() {
   words.forEach(({ word, row, col, direction }) => {
     [...word].forEach((letter, index) => {
       const currentRow = direction === "horizontal" ? row : row + index;
+
       const currentCol = direction === "horizontal" ? col + index : col;
 
       board[currentRow][currentCol] = letter;
@@ -99,10 +83,9 @@ function Crossword() {
   });
 
   async function saveProgress(newBoard) {
-    const token = localStorage.getItem("token");
     const userId = getUserIdFromToken();
 
-    if (!token || !userId) return;
+    if (!userId) return;
 
     const answers = {};
 
@@ -125,25 +108,22 @@ function Crossword() {
       progress.id = progressId;
     }
 
-    const response = await fetch(`${API_URL}/progress`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(progress),
-    });
+    const savedProgress = await saveProgressRequest(progress);
 
-    if (response.ok) {
-      const savedProgress = await response.json();
-
-      if (!progressId) {
-        setProgressId(savedProgress.id);
-      }
+    if (savedProgress && !progressId) {
+      setProgressId(savedProgress.id);
     }
   }
 
   function handleChange(rowIndex, colIndex, value) {
+    if (
+      userBoard[rowIndex][colIndex] !== "" &&
+      userBoard[rowIndex][colIndex].toUpperCase() ===
+        board[rowIndex][colIndex]?.toUpperCase()
+    ) {
+      return;
+    }
+
     const newBoard = userBoard.map((row) => [...row]);
 
     const currentValue = userBoard[rowIndex][colIndex];
@@ -172,13 +152,29 @@ function Crossword() {
     let nextRow = rowIndex;
     let nextCol = colIndex;
 
-    if (selectedDirection === "horizontal") {
-      nextCol++;
-    } else if (selectedDirection === "vertical") {
-      nextRow++;
-    }
+    while (true) {
+      if (selectedDirection === "horizontal") {
+        nextCol++;
+      } else if (selectedDirection === "vertical") {
+        nextRow++;
+      }
 
-    if (board[nextRow]?.[nextCol] !== null) {
+      if (board[nextRow]?.[nextCol] === undefined) {
+        return;
+      }
+
+      if (board[nextRow][nextCol] === null) {
+        return;
+      }
+
+      const isCorrect =
+        userBoard[nextRow][nextCol].toUpperCase() ===
+        board[nextRow][nextCol].toUpperCase();
+
+      if (isCorrect) {
+        continue;
+      }
+
       document
         .querySelector(`input[data-row="${nextRow}"][data-col="${nextCol}"]`)
         ?.focus();
@@ -187,6 +183,50 @@ function Crossword() {
         row: nextRow,
         col: nextCol,
       });
+
+      return;
+    }
+  }
+
+  function moveToPreviousCell(rowIndex, colIndex) {
+    let previousRow = rowIndex;
+    let previousCol = colIndex;
+
+    while (true) {
+      if (selectedDirection === "horizontal") {
+        previousCol--;
+      } else if (selectedDirection === "vertical") {
+        previousRow--;
+      }
+
+      if (board[previousRow]?.[previousCol] === undefined) {
+        return;
+      }
+
+      if (board[previousRow][previousCol] === null) {
+        return;
+      }
+
+      const isCorrect =
+        userBoard[previousRow][previousCol].toUpperCase() ===
+        board[previousRow][previousCol].toUpperCase();
+
+      if (isCorrect) {
+        continue;
+      }
+
+      document
+        .querySelector(
+          `input[data-row="${previousRow}"][data-col="${previousCol}"]`,
+        )
+        ?.focus();
+
+      setSelectedCell({
+        row: previousRow,
+        col: previousCol,
+      });
+
+      return;
     }
   }
 
@@ -205,30 +245,6 @@ function Crossword() {
       handleChange(row, col, "");
     } else {
       moveToPreviousCell(row, col);
-    }
-  }
-
-  function moveToPreviousCell(rowIndex, colIndex) {
-    let previousRow = rowIndex;
-    let previousCol = colIndex;
-
-    if (selectedDirection === "horizontal") {
-      previousCol--;
-    } else if (selectedDirection === "vertical") {
-      previousRow--;
-    }
-
-    if (board[previousRow]?.[previousCol] !== null) {
-      document
-        .querySelector(
-          `input[data-row="${previousRow}"][data-col="${previousCol}"]`,
-        )
-        ?.focus();
-
-      setSelectedCell({
-        row: previousRow,
-        col: previousCol,
-      });
     }
   }
 
@@ -281,75 +297,18 @@ function Crossword() {
     }
   }
 
-  return (
-    <div className="board-container">
-      <h1 className="level-name">{level?.name}</h1>
-
-      <div className="board">
-        {board.map((row, rowIndex) =>
-          row.map((cell, colIndex) => {
-            const isSelected =
-              selectedCell?.row === rowIndex && selectedCell?.col === colIndex;
-
-            const isCorrect =
-              cell !== null &&
-              userBoard[rowIndex][colIndex] !== "" &&
-              userBoard[rowIndex][colIndex].toLowerCase() ===
-                cell.toLowerCase();
-
-            return (
-              <div
-                key={`${rowIndex}-${colIndex}`}
-                className={
-                  cell === null
-                    ? "cell"
-                    : isCorrect
-                      ? "cell active correct"
-                      : isSelected
-                        ? "cell active selected"
-                        : "cell active"
-                }
-                onClick={() =>
-                  cell !== null && handleCellClick(rowIndex, colIndex)
-                }
-              >
-                {cell !== null && (
-                  <input
-                    data-row={rowIndex}
-                    data-col={colIndex}
-                    value={userBoard[rowIndex][colIndex]}
-                    inputMode="none"
-                    autoComplete="off"
-                    autoCorrect="off"
-                    autoCapitalize="characters"
-                    spellCheck={false}
-                    onKeyDown={(event) =>
-                      handleKeyDown(rowIndex, colIndex, event)
-                    }
-                    onChange={(event) =>
-                      handleChange(rowIndex, colIndex, event.target.value)
-                    }
-                    maxLength={1}
-                  />
-                )}
-              </div>
-            );
-          }),
-        )}
-      </div>
-
-      <div className="level-audio">
-        <AudioPlayer audio={level?.audio} />
-      </div>
-
-      {isTouch && (
-        <VirtualKeyboard
-          onKeyPress={handleVirtualKey}
-          onBackspace={handleVirtualBackspace}
-        />
-      )}
-    </div>
-  );
+  return {
+    level,
+    error,
+    board,
+    userBoard,
+    selectedCell,
+    handleCellClick,
+    handleChange,
+    handleKeyDown,
+    handleVirtualKey,
+    handleVirtualBackspace,
+  };
 }
 
-export default Crossword;
+export default useCrossword;
