@@ -87,7 +87,6 @@ function Register() {
 
   return (
     <div>
-      <div className="levels-blur"></div>
       <div className="data-container">
         <form className="data-form" onSubmit={handleSubmit} noValidate>
           <p>Cadastro</p>

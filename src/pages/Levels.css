@@ -3,22 +3,15 @@
   box-sizing: border-box;
 }
 
-.levels-blur {
-  position: fixed;
-  inset: -20px;
-  background-image: url('../assets/images/background-trial.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  filter: blur(5px);
-  z-index: 0;
-}
-
 .levels-container {
   position: relative;
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: 15vh 85vh;
+  background-image: url('../assets/images/background.webp');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   z-index: 1;
 }
 
@@ -58,10 +51,11 @@
 }
 
 .span-account {
-  font-size: 35px;
+  width: 28px;
+  height: 28px;
 }
 
-.span-account:hover {
+.profile-student:hover .span-account {
   color: rgb(185, 182, 182);
 }
 

@@ -20,7 +20,6 @@ export default function PopularCards({ cards = CARDS }) {
   const navigate = useNavigate();
   return (
     <div>
-      <div className="levels-blur"></div>
       <div className="ct-root">
         <div className="header-home">
           <p className="typing"> Boost your English with Creative Technology</p>

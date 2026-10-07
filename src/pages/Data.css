@@ -1,10 +1,15 @@
+* {
+  margin: 0;
+  box-sizing: border-box;
+}
+
 .data-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-image: url('../assets/images/background-trial.jpg');
+  background-image: url('../assets/images/background.webp');
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;

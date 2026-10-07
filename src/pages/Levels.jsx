@@ -31,7 +31,6 @@ function List() {
 
   return (
     <div>
-      <div className="levels-blur"></div>
       <div className="levels-container">
         <header className="levels-container-header">
           <div className="level-student">{user?.proficiency}</div>
@@ -43,9 +42,18 @@ function List() {
             type="button"
             onClick={() => navigate("/profile")}
           >
-            <span className="material-symbols-outlined span-account">
-              account_circle
-            </span>
+            <svg
+              className="span-account"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <circle cx="12" cy="9.5" r="3" />
+              <path d="M5.5 18.5c1.5-2 3.8-3 6.5-3s5 1 6.5 3" />
+            </svg>
           </button>
         </header>
 
