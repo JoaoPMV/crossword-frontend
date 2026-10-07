@@ -139,12 +139,11 @@
 }
 
 .cell.active {
-  background: white;
+  background: linear-gradient(135deg, #f3f3f3 0%, #eff0f0 100%);
 }
 
 .cell.selected {
-  outline: 3px solid yellow;
-  outline-offset: -3px;
+  background-color: rgb(219, 217, 217);
 }
 
 .cell input {
