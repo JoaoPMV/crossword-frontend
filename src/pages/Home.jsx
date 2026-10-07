@@ -14,10 +14,6 @@ const CARDS = [
     type: "Crossword",
     title: "Jogo criativo para estudar inglês, com áudios, texto e muito mais.",
   },
-  {
-    type: "Crossword",
-    title: "Jogo criativo para estudar inglês, com áudios, texto e muito mais.",
-  },
 ];
 
 export default function PopularCards({ cards = CARDS }) {
@@ -26,12 +22,9 @@ export default function PopularCards({ cards = CARDS }) {
     <div>
       <div className="levels-blur"></div>
       <div className="ct-root">
-        <div className="footer-home">
-          <button className="button-login" onClick={() => navigate("/login")}>
-            Login
-          </button>
+        <div className="header-home">
+          <p className="typing"> Boost your English with Creative Technology</p>
         </div>
-
         <div className="cards">
           {cards.map((card) => (
             <article className="card">
@@ -41,6 +34,11 @@ export default function PopularCards({ cards = CARDS }) {
               <p>{card.title}</p>
             </article>
           ))}
+        </div>
+        <div className="footer-home">
+          <button className="button-login" onClick={() => navigate("/login")}>
+            Start
+          </button>
         </div>
       </div>
     </div>

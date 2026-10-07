@@ -29,7 +29,7 @@
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: 80vh 20vh;
+  grid-template-rows: 20vh 60vh 20vh;
   background-image: url('../assets/images/background-trial.jpg');
   background-repeat: no-repeat;
   background-position: center center;
@@ -37,12 +37,36 @@
   z-index: 1;
 }
 
+.header-home {
+  grid-column: 1 / 2;
+  grid-row: 1 / 2;
+  z-index: 1;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: end;
+  font-size: 20px;
+}
 
-.footer-home {
+.cards {
   grid-column: 1 / 2;
   grid-row: 2 / 3;
   display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
   justify-content: center;
+  padding: 4rem 3rem 5rem 1rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+
+.footer-home {
+  grid-column: 1 / 2;
+  grid-row: 3 / 4;
+  display: flex;
+  justify-content: center;
+  z-index: 1;
 }
 
 
@@ -68,17 +92,6 @@
   z-index: 1;
 }
 
-.cards {
-  grid-column: 1 / 2;
-  grid-row: 1 / 2;
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem 3rem 5rem 1rem;
-  overflow-x: auto;
-  scrollbar-width: thin;
-}
 
 /* ---------- Card ---------- */
 .card {
@@ -161,6 +174,30 @@
 
 .card p:hover {
   cursor: pointer;
+}
+
+.typing {
+  display: inline-block;
+  white-space: nowrap;
+  border-right: 2px solid currentColor;
+  clip-path: inset(0 calc(100% - 1ch) 0 0);
+  /* já mostra a 1ª letra */
+
+  animation:
+    typing 3s steps(43) forwards,
+    blink 0.7s step-end infinite;
+}
+
+@keyframes typing {
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes blink {
+  50% {
+    border-color: transparent;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
