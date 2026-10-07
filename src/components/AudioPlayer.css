@@ -9,12 +9,17 @@
   border-bottom-left-radius: 30px;
   height: 7vh;
   cursor: pointer;
-  width: 17vw;
+  width: 19vw;
 }
 
 .buttons-audio {
   display: flex;
+}
 
+.time-player {
+  width: 8vw;
+  display: flex;
+  justify-content: center;
 }
 
 .buttons-audio button {

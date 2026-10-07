@@ -18,7 +18,7 @@
   position: relative;
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: 10vh 90vh;
+  grid-template-rows: 15vh 85vh;
   z-index: 1;
 }
 

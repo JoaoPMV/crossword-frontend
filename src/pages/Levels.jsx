@@ -52,8 +52,8 @@ function List() {
         <main className="levels-container-main">
           {user && (
             <p className="welcome-message">
-              Hello, {user.firstName}. Select a level below to start. If you
-              need help, click on the button "How to Play" above.
+              Hello, {user.firstName}. If you need help, click on the button
+              "How to Play" above.
             </p>
           )}
 

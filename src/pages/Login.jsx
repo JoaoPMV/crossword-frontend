@@ -57,7 +57,7 @@ function Login() {
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          <button type="submit">Enter</button>
+          <button type="submit">Login</button>
 
           <div className="data-result">
             {message && <p className="msg-error">{message}</p>}
