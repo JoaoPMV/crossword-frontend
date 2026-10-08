@@ -40,10 +40,7 @@ function ForgotPassword() {
     <div>
       <div className="data-container">
         <form className="data-form" onSubmit={handleSubmit}>
-          <p>
-            Please enter your email address. You will receive an email with a
-            link to reset your password.
-          </p>
+          <p>You will receive an email with a link to reset your password.</p>
 
           <input
             type="email"

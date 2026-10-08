@@ -35,37 +35,31 @@ function HelpModal({ isOpen, onClose }) {
 
         <div className="modal-body">
           <p>
-            Este é um jogo de palavras-cruzadas como você nunca viu antes. Ideal
-            para aprender e memorizar vocabulários e também praticar listening e
-            reading.
-          </p>
-          <p>
-            Em vez de ler as dicas na horizontal e vertical, você vai ouvir um
-            áudio. O áudio contém todas as palavras necessárias para você
-            completar as palavras. Você também pode acessar o texto de descrição
-            do áudio.
+            Instead of reading clues for across and down, you'll listen to an
+            audio track. The audio contains all the words you need to complete
+            the puzzle. You can also view the audio transcript if you need it.
           </p>
 
           <div className="div-help-modal">
             <span className="material-symbols-outlined">play_circle</span>
-            <p>Clique para tocar o áudio</p>
+            <p>Click to play the audio</p>
           </div>
           <div className="div-help-modal">
             <span className="material-symbols-outlined">pause_circle</span>
-            <p>Clique para pausar o áudio</p>
+            <p>Click to pause the audio</p>
           </div>
           <div className="div-help-modal">
             <span className="material-symbols-outlined">replay_5</span>
-            <p>Clique para voltar cinco segundos do áudio</p>
+            <p>Click to go back five seconds</p>
           </div>
           <div className="div-help-modal">
             <span className="material-symbols-outlined">forward_5</span>
-            <p>Clique para avançar cinco segundos do áudio</p>
+            <p>Click to go forward five seconds</p>
           </div>
 
           <div className="div-help-modal">
             <span className="material-symbols-outlined">change_circle</span>
-            <p>Clique para alternar entre o tabuleiro e descrição do áudio</p>
+            <p>Click to switch between the board and the audio transcript</p>
           </div>
         </div>
         <div className="modal-footer">

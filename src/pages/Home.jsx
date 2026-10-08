@@ -4,15 +4,17 @@ import "./Home.css";
 const CARDS = [
   {
     type: "Progresso",
-    title: "Seu progresso é salvo para continuar os estudos.",
+    title:
+      "Your progress is saved so you can continue learning where you left off.",
   },
   {
     type: "Níveis",
-    title: "Conteúdo dividido por níveis de proficiência.",
+    title: "Content organized by proficiency level.",
   },
   {
     type: "Crossword",
-    title: "Jogo criativo para estudar inglês, com áudios, texto e muito mais.",
+    title:
+      "A creative game to study English, with audios, texts, and much more.",
   },
 ];
 
@@ -21,9 +23,8 @@ export default function PopularCards({ cards = CARDS }) {
   return (
     <div>
       <div className="ct-root">
-        <div className="header-home">
-          <p className="typing"> Boost your English with Creative Technology</p>
-        </div>
+        <p className="typing"> Boost your English with Creative Technology.</p>
+
         <div className="cards">
           {cards.map((card) => (
             <article className="card">

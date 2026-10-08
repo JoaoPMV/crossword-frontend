@@ -107,18 +107,18 @@ function UserProfile() {
   return (
     <div className="data-container">
       <form className="data-form" onSubmit={handleSubmit} noValidate>
-        <h1>Meu perfil</h1>
+        <h1>Your Profile</h1>
 
         <input
           type="text"
-          placeholder="Nome"
+          placeholder="Name"
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}
         />
 
         <input
           type="text"
-          placeholder="Sobrenome"
+          placeholder="Last Name"
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
         />
@@ -131,7 +131,7 @@ function UserProfile() {
         />
 
         <fieldset className="proficiency-group">
-          <legend>Nível de inglês</legend>
+          <legend>English Level</legend>
           {PROFICIENCY_LEVELS.map((level) => (
             <label key={level.value} className="proficiency-option">
               <input
@@ -146,7 +146,7 @@ function UserProfile() {
           ))}
         </fieldset>
 
-        <button type="submit">Salvar</button>
+        <button type="submit">Save</button>
 
         <div className="data-result">
           {message && (
@@ -157,7 +157,7 @@ function UserProfile() {
 
       <div className="data-navigators">
         <button type="button" onClick={() => navigate(-1)}>
-          Voltar
+          Go back
         </button>
       </div>
     </div>

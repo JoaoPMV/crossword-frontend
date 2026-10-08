@@ -30,6 +30,22 @@
   display: flex;
 }
 
+.player-container,
+.player-container * {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.buttons-audio button:active,
+.buttons-audio button:focus {
+  background-color: transparent;
+  outline: none;
+}
+
+
+
 .buttons-audio span {
   font-size: 28px;
 }
@@ -41,7 +57,12 @@
 @media (max-width: 767px) {
 
   .player-container {
-    width: 67vw;
+    width: 70vw;
+  }
+
+  .time-player {
+    width: 25vw;
+
   }
 
 }

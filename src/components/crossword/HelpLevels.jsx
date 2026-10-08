@@ -35,15 +35,14 @@ function HelpModal({ isOpen, onClose }) {
 
         <div className="modal-body">
           <p>
-            Este é um jogo de palavras-cruzadas como você nunca viu antes. Ideal
-            para aprender e memorizar vocabulários e também praticar listening e
-            reading.
+            This is a crossword game like nothing you've seen before. It's ideal
+            for learning and memorizing vocabulary, and for practicing your
+            listening and reading skills.
           </p>
           <p>
-            Para iniciar o jogo, basta selecionar um nível na lista e clicar
-            sobre ele. Os jogos estão organizados de acordo com os níveis de
-            proficiência em inglês. Para alterar seu nível de proficiência,
-            acesse sua conta.
+            To start the game, simply select a level from the list and click on
+            it. The games are organized by English proficiency level. To change
+            your proficiency level, go to your account.
           </p>
         </div>
         <div className="modal-footer">

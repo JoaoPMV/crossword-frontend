@@ -126,7 +126,7 @@ function Register() {
           />
 
           <fieldset className="proficiency-group">
-            <legend>Nível de inglês</legend>
+            <legend>English Level</legend>
             {PROFICIENCY_LEVELS.map((level) => (
               <label key={level.value} className="proficiency-option">
                 <input
