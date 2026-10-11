@@ -172,7 +172,14 @@
 @media (max-width: 768px) {
 
   .levels-container {
-    grid-template-rows: 10dvh 90dvh;
+    grid-template-rows: 15dvh 85dvh;
+  }
+
+  .levels-container-header {
+
+    justify-content: center;
+    gap: 1.5rem;
+
   }
 
   .crossword-levels {
