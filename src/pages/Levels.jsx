@@ -86,7 +86,7 @@ function List() {
             ))}
           </div>
         </main>
-        <footer class="levels-container-fotter"></footer>
+
         <HelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} />
       </div>
     </div>

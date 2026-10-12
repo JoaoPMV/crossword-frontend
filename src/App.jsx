@@ -8,12 +8,14 @@ import ForgotPassword from "./pages/ForgotPassword";
 import UserProfile from "./pages/UserProfile";
 import Cards from "./pages/Home";
 import Home from "./pages/Home";
+import Teacher from "./pages/TeacherDashboard";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/cards" element={<Cards />} />
+        <Route path="/teacher" element={<Teacher />} />
         <Route path="/" element={<Home />} />
         <Route path="/levels" element={<Levels />} />
         <Route path="/profile" element={<UserProfile />} />
